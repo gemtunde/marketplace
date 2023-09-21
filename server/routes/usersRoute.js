@@ -41,7 +41,12 @@ router.post("/login", async (req, res) => {
 
     //user not found
     if (!user) {
-      throw new Error("User bot found");
+      throw new Error("User not found");
+      //res.send({ message: "User not found" });
+    }
+    //user not found
+    if (user.status !== "active") {
+      throw new Error("User account is blocked. Pls contact admin");
       //res.send({ message: "User not found" });
     }
     //compare password
@@ -82,6 +87,41 @@ router.get("/get-current-user", authMiddleware, async (req, res) => {
       success: true,
       message: "User fetched successfully",
       data: user,
+    });
+  } catch (error) {
+    res.send({
+      success: false,
+      message: error.message,
+    });
+  }
+});
+//get all user
+router.get("/get-users", authMiddleware, async (req, res) => {
+  try {
+    const users = await User.find();
+    res.send({
+      success: true,
+      message: "Users fetched successfully",
+      data: users,
+    });
+  } catch (error) {
+    res.send({
+      success: false,
+      message: error.message,
+    });
+  }
+});
+
+//update user status
+
+router.put("/update-user-status/:id", authMiddleware, async (req, res) => {
+  try {
+    const { status } = req.body;
+    await User.findByIdAndUpdate(req.params.id, { status });
+
+    res.send({
+      success: true,
+      message: "Product Status Updated Successful",
     });
   } catch (error) {
     res.send({
