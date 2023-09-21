@@ -1,6 +1,8 @@
 const router = require("express").Router();
 const Product = require("../models/productModel");
 const authMiddleware = require("../middlewares/authMiddleware");
+const cloudinary = require("../config/cloudinaryConfig");
+const multer = require("multer");
 
 router.post("/add-product", authMiddleware, async (req, res) => {
   try {
@@ -22,7 +24,7 @@ router.post("/add-product", authMiddleware, async (req, res) => {
 
 router.get("/get-products", authMiddleware, async (req, res) => {
   try {
-    const products = await Product.find();
+    const products = await Product.find().sort({ createdAt: -1 });
 
     res.send({
       success: true,
@@ -71,5 +73,41 @@ router.delete("/delete-product/:id", authMiddleware, async (req, res) => {
     });
   }
 });
+
+//image upload to cloudinary
+const storage = multer.diskStorage({
+  filename: function (req, file, callback) {
+    callback(null, Date.now() + file.originalname);
+  },
+});
+
+router.post(
+  "/upload-image-to-product",
+  authMiddleware,
+  multer({ storage: storage }).single("file"),
+  async (req, res) => {
+    try {
+      const result = await cloudinary.uploader.upload(req.file.path, {
+        folder: "marketplace",
+      });
+      const productId = req.body.productId;
+
+      await Product.findByIdAndUpdate(productId, {
+        $push: { images: result.secure_url },
+      });
+
+      res.send({
+        success: true,
+        message: "Image uploaded sucessfully",
+        data: result.secure_url,
+      });
+    } catch (error) {
+      res.send({
+        success: false,
+        message: error.message,
+      });
+    }
+  }
+);
 
 module.exports = router;
