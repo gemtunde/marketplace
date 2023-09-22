@@ -11,9 +11,11 @@ const dbConfig = require("./config/dbConfig");
 //routes
 const userRoute = require("./routes/usersRoute");
 const productsRoute = require("./routes/productsRoute");
+const bidsRoute = require("./routes/bidsRoute");
 
 app.use("/api/users", userRoute);
 app.use("/api/products", productsRoute);
+app.use("/api/bids", bidsRoute);
 
 app.listen(port, () => {
   console.log(`Nodejs server listening on port ${port}`);

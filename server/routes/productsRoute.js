@@ -35,7 +35,7 @@ router.post("/get-products", authMiddleware, async (req, res) => {
 
     res.send({
       success: true,
-      products,
+      data: products,
     });
   } catch (error) {
     res.send({
@@ -54,6 +54,22 @@ router.put("/edit-product/:id", authMiddleware, async (req, res) => {
     res.send({
       success: true,
       message: "Product Update Successful",
+    });
+  } catch (error) {
+    res.send({
+      success: false,
+      message: error.message,
+    });
+  }
+});
+
+//get a product by id
+router.get("/get-product-by-id/:id", authMiddleware, async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id).populate("seller");
+    res.send({
+      success: true,
+      data: product,
     });
   } catch (error) {
     res.send({
