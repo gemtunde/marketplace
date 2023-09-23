@@ -46,7 +46,10 @@ const productSchema = new mongoose.Schema(
     boxAvailable: {
       type: Boolean,
       default: false,
-      required: true,
+    },
+    showBidsOnProductPage: {
+      type: Boolean,
+      default: false,
     },
     seller: {
       type: mongoose.Schema.Types.ObjectId,
